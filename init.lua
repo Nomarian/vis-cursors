@@ -5,12 +5,35 @@ local files = {}
 -- default maxsize
 M.maxsize = 1000
 
+local Exists = function -- string|false
+(
+	filepath -- string
+)
+	return os.rename(filepath, filepath) and filepath or false
+end
+
 -- get the default system cache directory
+-- (Exists($XDG_CACHE_HOME or $HOME/.cache)/vis-cursors) or $HOME/.vis-cursors
 local get_default_cache_path = function()
+	local filename = "vis-cursors"
 	local HOME = os.getenv('HOME')
-	local XDG_CACHE_HOME = os.getenv('XDG_CACHE_HOME')
-	local BASE = XDG_CACHE_HOME or HOME
-	return BASE .. '/.vis-cursors'
+	local home = HOME .. "/." .. filename
+
+	-- freedesktop states that if $XDG_CACHE_HOME is not set
+	-- $HOME/.cache must be used (if it exists)
+	local XDG_CACHE_HOME = Exists(
+		os.getenv"XDG_CACHE_HOME"
+		or (HOME .. "/.cache")
+	)
+	if XDG_CACHE_HOME then
+		XDG_CACHE_HOME = XDG_CACHE_HOME .. "/" .. filename
+		-- move vis-cursors to new location & behavior
+		-- this fails, but it doesn't error so it doesn't matter
+		os.rename(home, XDG_CACHE_HOME)
+		return XDG_CACHE_HOME
+	end
+
+	return home
 end
 
 -- default save path
