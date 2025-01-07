@@ -1,6 +1,7 @@
 local M = {}
 local cursors = {}
 local files = {}
+local vis = _G.vis
 
 -- default maxsize
 M.maxsize = 1000
@@ -100,11 +101,16 @@ local on_quit = function()
 
 	-- buffer cursors string
 	local buffer = {}
-	for i, path in ipairs(files) do
+
+	-- limit for buffer is M.maxsize
+	local buffer_limit = #files
+	if buffer_limit>M.maxsize then
+		buffer_limit = M.maxsize
+	end
+
+	for i=1, buffer_limit do
+		local path = files[i]
 		table.insert(buffer, string.format('%s,%d', path, cursors[path]))
-		if M.maxsize and #buffer >= M.maxsize then
-			break
-		end
 	end
 	local output = table.concat(buffer, '\n')
 	file:write(output)
