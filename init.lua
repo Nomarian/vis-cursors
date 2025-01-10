@@ -17,7 +17,7 @@ end
 -- default save path
 M.path = get_default_cache_path()
 
-local function read_files()
+local function load_db()
 	-- read file
 	local file = io.open(M.path)
 	if file == nil then
@@ -39,7 +39,7 @@ end
 
 -- read cursors from file on init
 local on_init = function()
-	read_files()
+	load_db()
 end
 
 -- apply cursor pos on win open
@@ -69,7 +69,7 @@ local on_win_close = function(win)
 	end
 
 	-- re-read files in case they've changed
-	read_files()
+	load_db()
 
 	-- remove old occurences of current path
 	for i, path in ipairs(files) do
